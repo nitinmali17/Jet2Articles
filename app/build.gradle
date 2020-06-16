@@ -55,5 +55,7 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
     kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
     implementation "android.arch.lifecycle:extensions:$lifeCycleExtensionsVersion"
-
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
+    implementation "joda-time:joda-time:$jodaDateVersion"
+    implementation "de.hdodenhof:circleimageview:$circularImageViewVersion"
 }

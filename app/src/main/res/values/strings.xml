@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Jet2Articles</string>
+    <string name = "api_error">Error occurred while fetching articles</string>
+    <string name="days_suffix">d</string>
+    <string name="hours_suffix">hr</string>
+    <string name="minutes_suffix">min</string>
+    <string name="likes_text">Likes</string>
+    <string name="comments_text">Comments</string>
+    <string name="k_suffix">k</string>
 </resources>

@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class Jet2ArticlesService @Inject constructor(private val networkClient: NetworkClient) :Jet2ArticlesApi {
 
-    override fun getArticles(pageNumber: Int, limit: Int): Observable<List<ArticlesData>> {
+    override fun getArticles(pageNumber: Int, limit: Int): Observable<ArrayList<ArticlesData>> {
         return networkClient.getRetrofitClient()
             .create(Jet2ArticlesApi::class.java)
             .getArticles(pageNumber,limit)
