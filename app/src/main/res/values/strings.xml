@@ -7,4 +7,5 @@
     <string name="likes_text">Likes</string>
     <string name="comments_text">Comments</string>
     <string name="k_suffix">k</string>
+    <string name="message_all_caught_up">You\'re All Caught Up..</string>
 </resources>

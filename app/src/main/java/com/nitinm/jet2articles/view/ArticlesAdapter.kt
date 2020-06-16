@@ -2,6 +2,8 @@ package com.nitinm.jet2articles.view
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.nitinm.jet2articles.R
@@ -40,15 +42,43 @@ class ArticlesAdapter(articleList: ArrayList<ArticlesData>) :
     class ArticlesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(articlesData: ArticlesData) {
-            val userData: UserData = articlesData.userList.get(0)
-            val mediaData: MediaData = articlesData.mediaList.get(0)
-            Picasso.get().load(userData.avatar).into(itemView.userImageView)
-            Picasso.get().load(mediaData.imageurl).into(itemView.articleImageView)
-            itemView.userNameTextView.text = "${userData.name} ${userData.lastname}"
-            itemView.userDesignationTextView.text = userData.designation
-            itemView.articleContentTextView.text = articlesData.content
-            itemView.articleTitleTextView.text = mediaData.title
-            itemView.articleUrlTextView.text = mediaData.url
+            val userData: UserData? = if (articlesData.userList.isNotEmpty()) articlesData.userList.get(0) else null
+            val mediaData: MediaData? = if (articlesData.mediaList.isNotEmpty()) articlesData.mediaList.get(0) else null
+            Picasso.get().load(userData?.avatar).into(itemView.userImageView)
+            mediaData?.imageurl.let { imageUrl: String? ->
+                if (imageUrl.isNullOrBlank())
+                    itemView.articleImageView.visibility = GONE
+                else {
+                    itemView.articleImageView.visibility = VISIBLE
+                    Picasso.get().load(mediaData?.imageurl).into(itemView.articleImageView)
+                }
+            }
+            itemView.userNameTextView.text = "${userData?.name} ${userData?.lastname}"
+            itemView.userDesignationTextView.text = userData?.designation
+            articlesData.content.let { content ->
+                if (content.isBlank())
+                    itemView.articleContentTextView.visibility = GONE
+                else {
+                    itemView.articleContentTextView.visibility = VISIBLE
+                    itemView.articleContentTextView.text = content
+                }
+            }
+            mediaData?.title.let { title: String? ->
+                if (title.isNullOrBlank())
+                    itemView.articleTitleTextView.visibility = GONE
+                else {
+                    itemView.articleTitleTextView.visibility = VISIBLE
+                    itemView.articleTitleTextView.text = title
+                }
+            }
+            mediaData?.url.let { url: String? ->
+                if (url.isNullOrBlank())
+                    itemView.articleUrlTextView.visibility = GONE
+                else {
+                    itemView.articleUrlTextView.visibility = VISIBLE
+                    itemView.articleUrlTextView.text = url
+                }
+            }
             itemView.likesTextView.text = articlesData.likes.getNumberInDisplayFormat(
                 itemView.context,
                 itemView.context.getString(R.string.likes_text)
