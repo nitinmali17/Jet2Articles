@@ -10,6 +10,9 @@ buildscript {
         picassoVersion = '2.71828'
         jodaDateVersion = '2.10.6'
         circularImageViewVersion = '3.1.0'
+        roomVersion = '2.2.5'
+        coroutinesVersion = '1.3.7'
+        gsonVersion = '2.8.6'
     }
 
     repositories {

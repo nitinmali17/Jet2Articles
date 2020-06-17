@@ -2,40 +2,82 @@ package com.nitinm.jet2articles.view.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.nitinm.jet2articles.application.Jet2Application
 import com.nitinm.jet2articles.data.model.ArticlesData
-import com.nitinm.jet2articles.di.DaggerAppComponent
+import com.nitinm.jet2articles.domain.ArticlesDataRepository
 import com.nitinm.jet2articles.domain.Jet2ArticlesService
 import com.nitinm.jet2articles.util.Constants
 import javax.inject.Inject
 
-class ArticlesViewModel : ViewModel() {
+class ArticlesViewModel() : ViewModel() {
 
     @Inject
     lateinit var jet2ArticlesService: Jet2ArticlesService
-    var articlesList = MutableLiveData<ArrayList<ArticlesData>>()
-    var articlesLoadError = MutableLiveData<Boolean>()
+
+    @Inject
+    lateinit var articlesDataRepository: ArticlesDataRepository
+
+    @Inject
+    lateinit var jet2Application: Jet2Application
+
+    var articlesListLiveData = MutableLiveData<ArrayList<ArticlesData>>()
+    var articlesLoadErrorLiveData = MutableLiveData<Boolean>()
     var articlesLoadingLiveData = MutableLiveData<Boolean>()
 
     init {
-        DaggerAppComponent.create().inject(this)
+        Jet2Application.component.inject(this)
     }
 
-
-    fun getArticlesList(pageNumber: Int, limit: Int = Constants.ARTICLES_FETCH_LIMIT) {
-        articlesLoadingLiveData.value = true
-
-        jet2ArticlesService
-            .getArticles(pageNumber, limit)
+    fun CheckDbCountAndCallArticleList(pageNumber: Int, limit: Int = Constants.ARTICLES_FETCH_LIMIT) {
+        articlesDataRepository.getNumberOfPagesFromDb()
             .subscribe(
-                { articles ->
-
-                    articlesList.value = articles
-                    articlesLoadingLiveData.value = false
+                { dbRowCount ->
+                    getArticlesList(pageNumber, limit, dbRowCount)
                 },
-                { error: Throwable ->
+                { t: Throwable ->
+                    getArticlesList(pageNumber, limit, 0)
+                }
+            )
+    }
 
-                    articlesLoadError.value = true
-                    articlesLoadingLiveData.value = false
-                })
+    private fun getArticlesList(pageNumber: Int, limit: Int = Constants.ARTICLES_FETCH_LIMIT, dbDataCount: Int) {
+        articlesLoadingLiveData.value = true
+        if (dbDataCount >= pageNumber) {
+            getArticleListFromDataBase(pageNumber)
+        } else {
+            jet2ArticlesService
+                .getArticles(pageNumber, limit)
+                .subscribe(
+                    { articles ->
+                        insertArticleListInDataBase(pageNumber, articles)
+                    },
+                    { error: Throwable ->
+                        articlesLoadErrorLiveData.value = true
+                        articlesLoadingLiveData.value = false
+                    })
+        }
+    }
+
+    private fun getArticleListFromDataBase(pageNumber: Int) {
+        articlesDataRepository.getArticlesByPageNumber(pageNumber)
+            .subscribe({ articleListFromDb: ArrayList<ArticlesData> ->
+                articlesListLiveData.value = articleListFromDb
+                articlesLoadingLiveData.value = false
+                articlesLoadErrorLiveData.value = false
+            }, { t: Throwable ->
+                articlesLoadErrorLiveData.value = true
+                articlesLoadingLiveData.value = false
+            })
+    }
+
+    private fun insertArticleListInDataBase(pageNumber: Int, articleListToInsert: ArrayList<ArticlesData>) {
+        articlesDataRepository.insertArticlesInDataBase(pageNumber, articleListToInsert)
+            .subscribe({ t ->
+                articlesListLiveData.value = articleListToInsert
+                articlesLoadingLiveData.value = false
+            }, { t: Throwable ->
+                articlesLoadErrorLiveData.value = true
+                articlesLoadingLiveData.value = false
+            })
     }
 }

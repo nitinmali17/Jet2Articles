@@ -45,39 +45,31 @@ class ArticlesAdapter(articleList: ArrayList<ArticlesData>) :
             val userData: UserData? = if (articlesData.userList.isNotEmpty()) articlesData.userList.get(0) else null
             val mediaData: MediaData? = if (articlesData.mediaList.isNotEmpty()) articlesData.mediaList.get(0) else null
             Picasso.get().load(userData?.avatar).into(itemView.userImageView)
-            mediaData?.imageurl.let { imageUrl: String? ->
-                if (imageUrl.isNullOrBlank())
-                    itemView.articleImageView.visibility = GONE
-                else {
-                    itemView.articleImageView.visibility = VISIBLE
-                    Picasso.get().load(mediaData?.imageurl).into(itemView.articleImageView)
-                }
+            if (mediaData?.imageurl.isNullOrBlank())
+                itemView.articleImageView.visibility = GONE
+            else {
+                itemView.articleImageView.visibility = VISIBLE
+                Picasso.get().load(mediaData?.imageurl).into(itemView.articleImageView)
             }
             itemView.userNameTextView.text = "${userData?.name} ${userData?.lastname}"
             itemView.userDesignationTextView.text = userData?.designation
-            articlesData.content.let { content ->
-                if (content.isBlank())
-                    itemView.articleContentTextView.visibility = GONE
-                else {
-                    itemView.articleContentTextView.visibility = VISIBLE
-                    itemView.articleContentTextView.text = content
-                }
+            if (articlesData.content.isBlank())
+                itemView.articleContentTextView.visibility = GONE
+            else {
+                itemView.articleContentTextView.visibility = VISIBLE
+                itemView.articleContentTextView.text = articlesData.content
             }
-            mediaData?.title.let { title: String? ->
-                if (title.isNullOrBlank())
-                    itemView.articleTitleTextView.visibility = GONE
-                else {
-                    itemView.articleTitleTextView.visibility = VISIBLE
-                    itemView.articleTitleTextView.text = title
-                }
+            if (mediaData?.title.isNullOrBlank())
+                itemView.articleTitleTextView.visibility = GONE
+            else {
+                itemView.articleTitleTextView.visibility = VISIBLE
+                itemView.articleTitleTextView.text = mediaData?.title
             }
-            mediaData?.url.let { url: String? ->
-                if (url.isNullOrBlank())
-                    itemView.articleUrlTextView.visibility = GONE
-                else {
-                    itemView.articleUrlTextView.visibility = VISIBLE
-                    itemView.articleUrlTextView.text = url
-                }
+            if (mediaData?.url.isNullOrBlank())
+                itemView.articleUrlTextView.visibility = GONE
+            else {
+                itemView.articleUrlTextView.visibility = VISIBLE
+                itemView.articleUrlTextView.text = mediaData?.url
             }
             itemView.likesTextView.text = articlesData.likes.getNumberInDisplayFormat(
                 itemView.context,

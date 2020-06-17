@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         articlesViewModel = ViewModelProviders.of(this).get(ArticlesViewModel::class.java)
         setUpRecyclerView()
         observeViewModel()
-        articlesViewModel.getArticlesList(pageNumber)
+        articlesViewModel.CheckDbCountAndCallArticleList(pageNumber)
     }
 
     private fun setUpRecyclerView() {
@@ -34,17 +34,20 @@ class MainActivity : AppCompatActivity() {
         articlesRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = articlesAdapter
+
             this.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
-                    var totalItemCount = this@apply.layoutManager?.itemCount ?: 0
-                    var lastVisibleItemPosition =
+
+                    val totalItemCount = this@apply.layoutManager?.itemCount ?: 0
+                    val lastVisibleItemPosition =
                         (this@apply.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
                     if (!isLoading && pageNumber != Constants.MAX_PAGES
                         && totalItemCount == lastVisibleItemPosition + 1
                     ) {
-                        articlesViewModel.getArticlesList(pageNumber)
-                    }else if(pageNumber == Constants.MAX_PAGES && totalItemCount == lastVisibleItemPosition + 1)
+                        articlesViewModel.CheckDbCountAndCallArticleList(pageNumber)
+                    } else if (pageNumber == Constants.MAX_PAGES && totalItemCount == lastVisibleItemPosition + 1)
                         this@MainActivity.showToast(context.getString(R.string.message_all_caught_up))
                 }
             })
@@ -58,13 +61,14 @@ class MainActivity : AppCompatActivity() {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         })
 
-        articlesViewModel.articlesList.observe(this, Observer { articlesList ->
+        articlesViewModel.articlesListLiveData.observe(this, Observer { articlesList ->
             articlesAdapter.articleList = articlesList
             pageNumber++
         })
 
-        articlesViewModel.articlesLoadError.observe(this, Observer { isError ->
-            this.showToast(getString(R.string.api_error))
+        articlesViewModel.articlesLoadErrorLiveData.observe(this, Observer { isError ->
+            if (isError)
+                this.showToast(getString(R.string.api_error))
         })
     }
 }
